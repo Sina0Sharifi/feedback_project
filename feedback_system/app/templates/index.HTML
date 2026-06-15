@@ -44,7 +44,7 @@
 </head>
 
 <body>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <div class="container py-5">
 
     <div class="text-center mb-5">
@@ -76,8 +76,9 @@
                         ارسال بازخورد
                     </h3>
 
-                    <form method="POST"
-                          action="/feedback/create">
+                    <form id="feedbackForm"
+                         method="POST"
+                            action="/feedback/create">
 
                         <div class="mb-3">
 
@@ -151,7 +152,7 @@
                         مشاهده بازخوردها
                     </h3>
 
-                    <form>
+                    <form id="searchForm">
 
                         <div class="mb-3">
 
@@ -159,8 +160,9 @@
                                 ایمیل خود را وارد کنید
                             </label>
 
-                            <input
+                                <input
                                     type="email"
+                                    id="searchEmail"
                                     class="form-control"
                                     required
                                     placeholder="example@gmail.com">
@@ -187,6 +189,118 @@
 
 </div>
 
+
+<div class="modal fade"
+     id="verificationModal"
+     tabindex="-1">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title">
+                    تایید کد
+                </h5>
+
+            </div>
+
+            <div class="modal-body">
+
+                <div
+                    id="generatedCode"
+                    class="alert alert-warning text-center">
+
+                    کد اینجا نمایش داده می‌شود
+
+                </div>
+
+                <input
+                    type="text"
+                    id="verificationInput"
+                    class="form-control"
+                    placeholder="کد 4 رقمی را وارد کنید">
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    id="verifyButton"
+                    class="btn btn-orange">
+
+                    تایید
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+<script>
+const feedbackForm = document.getElementById("feedbackForm");
+const searchForm = document.getElementById("searchForm");
+const searchEmail = document.getElementById("searchEmail");
+const modalEl = document.getElementById("verificationModal");
+const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+
+let currentAction = "";
+
+async function openVerificationModal() {
+    const response = await fetch("/generate-code");
+    const data = await response.json();
+
+    document.getElementById("generatedCode").innerText =
+        "کد تایید شما: " + data.generated_code;
+
+    modal.show();
+}
+
+feedbackForm.addEventListener("submit", async function (event) {
+    event.preventDefault();
+    currentAction = "create";
+    await openVerificationModal();
+});
+
+searchForm.addEventListener("submit", async function (event) {
+    event.preventDefault();
+    currentAction = "search";
+    await openVerificationModal();
+});
+
+document.getElementById("verifyButton").addEventListener("click", async function () {
+    const code = document.getElementById("verificationInput").value.trim();
+
+    const formData = new FormData();
+    formData.append("code", code);
+
+    const response = await fetch("/verify-code", {
+        method: "POST",
+        body: formData
+    });
+
+    const data = await response.json();
+
+    if (!data.success) {
+        alert("کد وارد شده اشتباه است");
+        return;
+    }
+
+    modal.hide();
+
+    if (currentAction === "create") {
+        HTMLFormElement.prototype.submit.call(feedbackForm);
+    } else if (currentAction === "search") {
+        const email = searchEmail.value.trim();
+        window.location.href = `/feedbacks/${encodeURIComponent(email)}`;
+    }
+});
+</script>
 </body>
 
 </html>
