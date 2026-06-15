@@ -2,6 +2,13 @@
 <html lang="fa" dir="rtl">
 
 <head>
+    <style>
+.preserve-text{
+    white-space: pre-wrap;
+    word-break: break-word;
+    line-height: 1.8;
+}
+</style>
 
     <meta charset="UTF-8">
 
@@ -52,13 +59,15 @@
 
             </p>
 
-            <p>
+<div class="mb-3">
 
-                <strong>متن:</strong>
+    <strong>متن:</strong>
 
-                {{ feedback.body }}
+    <div class="preserve-text mt-2">
+        {{ feedback.body }}
+    </div>
 
-            </p>
+</div>
 
             <hr>
 
@@ -108,10 +117,10 @@
 
                     </label>
 
-                    <textarea
-                        name="reply"
-                        rows="6"
-                        class="form-control">{{ feedback.reply or "" }}</textarea>
+<textarea
+    name="reply"
+    rows="10"
+    class="form-control">{{ feedback.reply or "" }}</textarea>
 
                 </div>
 

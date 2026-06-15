@@ -9,6 +9,7 @@ import models
 from models import Feedback
 from starlette.middleware.sessions import SessionMiddleware
 import random
+from typing import Optional
 
 Base.metadata.create_all(bind=engine)
 
@@ -88,27 +89,21 @@ def verify_code(
     request: Request,
     code: str = Form(...)
 ):
-
-    saved_code = request.session.get(
-        "verification_code"
-    )
+    saved_code = request.session.get("verification_code")
 
     if saved_code == code:
-
         request.session["verified"] = True
 
-        request.session.pop(
-            "verification_code",
-            None
-        )
+        requested_email = request.session.get("requested_email")
+        if requested_email:
+            request.session["allowed_email"] = requested_email
+            request.session.pop("requested_email", None)
 
-        return {
-            "success": True
-        }
+        request.session.pop("verification_code", None)
 
-    return {
-        "success": False
-    }
+        return {"success": True}
+
+    return {"success": False}
 
     
 @app.get("/feedbacks/{email}")
@@ -116,6 +111,16 @@ def user_feedbacks(
     request: Request,
     email: str
 ):
+    allowed_email = request.session.get(
+        "allowed_email"
+    )
+
+    if allowed_email != email:
+
+        return RedirectResponse(
+            "/",
+            status_code=303
+        )
 
     db = SessionLocal()
 
@@ -250,7 +255,7 @@ def update_feedback(
     request: Request,
     feedback_id: int,
     status: str = Form(...),
-    reply: str = Form(...)
+    reply: Optional[str] = Form("")
 ):
 
     check = admin_required(
@@ -280,3 +285,22 @@ def update_feedback(
         f"/admin/feedback/{feedback_id}?success=1",
         status_code=303
     )
+
+@app.post("/prepare-feedbacks")
+def prepare_feedbacks(
+    request: Request,
+    email: str = Form(...)
+):
+
+    request.session[
+        "requested_email"
+    ] = email
+
+    return {
+        "success": True
+    }
+@app.post("/clear-feedback-target")
+def clear_feedback_target(request: Request):
+    request.session.pop("requested_email", None)
+    request.session.pop("allowed_email", None)
+    return {"success": True}

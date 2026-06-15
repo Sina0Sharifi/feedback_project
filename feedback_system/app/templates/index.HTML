@@ -269,6 +269,21 @@ feedbackForm.addEventListener("submit", async function (event) {
 
 searchForm.addEventListener("submit", async function (event) {
     event.preventDefault();
+    const formData =
+new FormData();
+
+formData.append(
+    "email",
+    searchEmail.value
+);
+
+await fetch(
+    "/prepare-feedbacks",
+    {
+        method:"POST",
+        body:formData
+    }
+);
     currentAction = "search";
     await openVerificationModal();
 });
