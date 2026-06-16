@@ -45,14 +45,25 @@
 
 <body>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<div class="container py-5">
+<div class="text-center mb-5">
 
-    <div class="text-center mb-5">
-        <h1 class="main-title">سیستم مدیریت بازخورد</h1>
-        <p class="text-muted">
-            ثبت بازخورد و مشاهده پاسخ‌های دریافتی
-        </p>
-    </div>
+    <h1 class="main-title">
+        سیستم مدیریت بازخورد
+    </h1>
+
+    <p class="text-muted">
+        ثبت بازخورد و مشاهده پاسخ‌های دریافتی
+    </p>
+
+    <a
+        href="/admin/login"
+        class="btn btn-outline-dark mt-2">
+
+        ورود به پنل مدیریت
+
+    </a>
+
+</div>
 {% if success %}
 
 <div class="alert alert-success">
@@ -269,6 +280,21 @@ feedbackForm.addEventListener("submit", async function (event) {
 
 searchForm.addEventListener("submit", async function (event) {
     event.preventDefault();
+    const formData =
+new FormData();
+
+formData.append(
+    "email",
+    searchEmail.value
+);
+
+await fetch(
+    "/prepare-feedbacks",
+    {
+        method:"POST",
+        body:formData
+    }
+);
     currentAction = "search";
     await openVerificationModal();
 });
