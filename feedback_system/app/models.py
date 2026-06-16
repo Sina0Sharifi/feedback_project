@@ -18,7 +18,7 @@ class Feedback(Base):
     status = Column(
         String,
         nullable=False,
-        default="Received"
+        default="دریافت شده"
     )
 
     reply = Column(Text, nullable=True)

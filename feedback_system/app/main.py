@@ -10,7 +10,8 @@ from models import Feedback
 from starlette.middleware.sessions import SessionMiddleware
 import random
 from typing import Optional
-
+from sqlalchemy import func
+from fastapi.responses import Response
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
@@ -106,17 +107,24 @@ def verify_code(
     return {"success": False}
 
     
+    
 @app.get("/feedbacks/{email}")
 def user_feedbacks(
     request: Request,
     email: str
 ):
+
+    if not request.session.get("verified"):
+        return RedirectResponse(
+            "/",
+            status_code=303
+        )
+
     allowed_email = request.session.get(
         "allowed_email"
     )
 
     if allowed_email != email:
-
         return RedirectResponse(
             "/",
             status_code=303
@@ -132,7 +140,7 @@ def user_feedbacks(
 
     db.close()
 
-    return templates.TemplateResponse(
+    response = templates.TemplateResponse(
         request=request,
         name="user_feedbacks.html",
         context={
@@ -140,6 +148,36 @@ def user_feedbacks(
             "email": email
         }
     )
+
+    response.headers["Cache-Control"] = (
+        "no-store, no-cache, must-revalidate, max-age=0"
+    )
+
+    response.headers["Pragma"] = "no-cache"
+
+    response.headers["Expires"] = "0"
+
+    return response
+
+
+@app.get("/user/logout")
+def user_logout(
+    request: Request
+):
+
+    request.session.clear()
+
+    response = RedirectResponse(
+        "/",
+        status_code=303
+    )
+
+    response.headers["Cache-Control"] = (
+        "no-store, no-cache, must-revalidate, max-age=0"
+    )
+
+    return response
+
 @app.get("/admin/login")
 def admin_login_page(
     request: Request,
@@ -178,6 +216,8 @@ def admin_login(
         "/admin/login?error=1",
         status_code=303
     )
+
+
 @app.get("/admin/feedbacks")
 def admin_feedbacks(
     request: Request
@@ -188,24 +228,72 @@ def admin_feedbacks(
     )
 
     if check is not True:
-
         return check
 
     db = SessionLocal()
 
-    feedbacks = db.query(
-        Feedback
-    ).all()
+    emails = (
+        db.query(
+            Feedback.email,
+            func.count(
+                Feedback.id
+            ).label(
+                "count"
+            )
+        )
+        .group_by(
+            Feedback.email
+        )
+        .all()
+    )
 
     db.close()
 
     return templates.TemplateResponse(
         request=request,
-        name="admin_feedbacks.html",
+        name="admin_emails.html",
         context={
-            "feedbacks": feedbacks
+            "emails": emails
         }
     )
+
+
+@app.get("/admin/feedbacks/{email}")
+def admin_email_feedbacks(
+    request: Request,
+    email: str
+):
+
+    check = admin_required(
+        request
+    )
+
+    if check is not True:
+        return check
+
+    db = SessionLocal()
+
+    feedbacks = (
+        db.query(
+            Feedback
+        )
+        .filter(
+            Feedback.email == email
+        )
+        .all()
+    )
+
+    db.close()
+
+    return templates.TemplateResponse(
+        request=request,
+        name="admin_email_feedbacks.html",
+        context={
+            "feedbacks": feedbacks,
+            "email": email
+        }
+    )
+
 @app.get("/admin/logout")
 def admin_logout(
     request: Request
