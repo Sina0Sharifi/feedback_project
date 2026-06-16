@@ -1,4 +1,4 @@
-سیستم مدیریت بازخورد (Feedback Management System)
+<img width="1917" height="892" alt="Screenshot 2026-06-16 175403" src="https://github.com/user-attachments/assets/20641a7f-579a-4718-9c62-400a42768b40" />سیستم مدیریت بازخورد (Feedback Management System)
 
 
 این پروژه یک سیستم مدیریت بازخورد تحت وب است که با استفاده از FastAPI، SQLAlchemy، SQLite، Jinja2 و Bootstrap توسعه داده شده است.
@@ -154,11 +154,13 @@ FastAPI به دلیل سرعت بالا، سادگی توسعه، اعتبارس
 
 صفحه اصلی
 
-(اسکرین‌شات صفحه اصلی را اینجا قرار دهید)
+<img width="1917" height="892" alt="Screenshot 2026-06-16 175403" src="https://github.com/user-attachments/assets/824b6606-dba7-4ee7-ada7-a3945aef54a6" />
+
 
 ثبت بازخورد
 
-(اسکرین‌شات فرم ثبت بازخورد را اینجا قرار دهید)
+<img width="1919" height="900" alt="Screenshot 2026-06-16 175704" src="https://github.com/user-attachments/assets/cadd3bef-7ef0-453d-9eb3-c17ec9d66e03" />
+
 
 مشاهده بازخوردهای کاربر
 
