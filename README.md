@@ -167,6 +167,7 @@ FastAPI به دلیل سرعت بالا، سادگی توسعه، اعتبارس
 
 
 مشاهده بازخوردهای کاربر
+<img width="1481" height="884" alt="image" src="https://github.com/user-attachments/assets/edfc2dbf-26fc-4ad2-aa55-3c0379d216db" />
 
 
 ورود مدیر
